@@ -14,11 +14,13 @@
 
 # IMPORTANT: For best result, scanned image MUST NOT contain holder fragments!
 
+# scottmicciche: add -colorspace Gray before $CS, avoids overly dark images
+
 # You may wish to fine-tune the default settings:
 COMMENT="Processed with negfix8"
-GAMMA=2.15
+GAMMA=2.20
 PROF_DIR=$HOME/.negfix8
-MEM="-quiet -limit memory 2048M" # max physical memory used
+MEM="-quiet -limit memory 4096M" # max physical memory used
 ZIP="-compress zip"
 CS=""
 BINNING=""
@@ -64,7 +66,7 @@ while [ $# -gt 0 ]; do
     case $1 in
 	-m)	MIRROR="-flop"; shift;;
 	-s)	SEPARATE="-channel $2 -separate"; shift; shift;;
-	-cs)	CS="-contrast-stretch 0"; shift;;
+	-cs) CS="-contrast-stretch $2"; shift; shift;;
 	-r)	BINNING=$2; shift; shift;;
 	-g)     GAMMA=$2; shift; shift;;
 	-c)     PROF_NAME="$2"
@@ -185,13 +187,13 @@ for i in "${WORKLIST[@]}"; do
             echo -n "Writing $OUTF (B&W).... "
             convert $MEM "${F}" $CSPACE $SEPARATE $BINNING_CMD $MIRROR \
                 $SAFE -poly "$1,-1" -gamma $GAMMA -evaluate Subtract $4 \
-                $CS -comment "$COMMENT" $ZIP $SEPARATE "$OUTF"
+                -colorspace Gray $CS -comment "$COMMENT" $ZIP $SEPARATE "$OUTF"
             EX=$?
         else
             echo -n "Writing $OUTF (B&W)... "
             convert $MEM "${F}" $CSPACE $SEPARATE $BINNING_CMD $MIRROR \
                 $SAFE -fx "$1/u" -gamma $GAMMA -evaluate Subtract $4 \
-                $CS -comment "$COMMENT" $ZIP $SEPARATE "$OUTF"
+                -colorspace Gray $CS -comment "$COMMENT" $ZIP $SEPARATE "$OUTF"
             EX=$?
         fi
     else
